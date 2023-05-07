@@ -1,0 +1,140 @@
+import hashlib
+import json
+
+# 加载存储的图书信息
+with open("books.json", "r") as f:
+    books = json.load(f)
+
+# 加载存储的管理员信息
+with open("admins.json", "r") as f:
+    admins = json.load(f)
+
+# 定义一个函数，登录管理员账号
+def login():
+    username = input("请输入用户名：")
+    password = input("请输入密码：")
+    if username in admins and hashlib.sha256(password.encode()).hexdigest() == admins[username]:
+        print("登录成功！")
+        return True
+    else:
+        print("用户名或密码错误！")
+        return False
+
+# 定义一个函数，注册管理员账号
+def register():
+    username = input("请输入用户名：")
+    if username in admins:
+        print("用户名已存在！")
+        return
+    password1 = input("请输入密码：")
+    password2 = input("请再次输入密码：")
+    if password1 != password2:
+        print("两次输入的密码不一致！")
+        return
+    admins[username] = hashlib.sha256(password1.encode()).hexdigest()
+    with open("admins.json", "w") as f:
+        json.dump(admins, f)
+    print("注册成功！")
+
+# 定义一个函数，保存图书信息
+def save_books():
+    with open("books.json", "w") as f:
+        json.dump(books, f)
+
+# 定义一个函数，添加图书信息
+def add_book():
+    print("请输入图书信息：")
+    title = input("书名：")
+    author = input("作者：")
+    publisher = input("出版社：")
+    isbn = input("ISBN：")
+    price = float(input("价格："))
+    book = {"title": title, "author": author, "publisher": publisher, "isbn": isbn, "price": price}
+    books.append(book)
+    save_books()
+    print("添加成功！")
+
+# 定义一个函数，查询图书信息
+def query_book():
+    print("请输入要查询的图书ISBN：")
+    isbn = input()
+    for book in books:
+        if book["isbn"] == isbn:
+            print("书名：%s，作者：%s，出版社：%s，ISBN：%s，价格：%.2f" % (book["title"], book["author"], book["publisher"], book["isbn"], book["price"]))
+            break
+    else:
+        print("未找到该图书！")
+
+# 定义一个函数，修改图书信息
+def modify_book():
+    print("请输入要修改的图书ISBN：")
+    isbn = input()
+    for book in books:
+        if book["isbn"] == isbn:
+            print("请输入修改后的图书信息：")
+            title = input("书名（原：%s）：" % book["title"])
+            author = input("作者（原：%s）：" % book["author"])
+            publisher = input("出版社（原：%s）：" % book["publisher"])
+            isbn = input("ISBN（原：%s）：" % book["isbn"])
+            price = float(input("价格（原：%.2f）：" % book["price"]))
+            book["title"] = title
+            book["author"] = author
+            book["publisher"] = publisher
+            book["isbn"] = isbn
+            book["price"] = price
+            save_books()
+            print("修改成功！")
+            break
+            else:
+            print("未找到该图书！")
+# 定义一个函数，修改图书信息
+def delete_book():
+    print("请输入要删除的图书ISBN：")
+    isbn = input()
+    for book in books:
+        if book["isbn"] == isbn:
+            books.remove(book)
+            save_books()
+            print("删除成功！")
+            break
+            else:
+            print("未找到该图书！")
+# 程序入口
+if __name__ == "__main__":
+    while True:
+        print("欢迎使用图书管理系统！")
+        print("1. 登录管理员账号")
+        print("2. 注册管理员账号")
+        print("3. 添加图书信息")
+        print("4. 查询图书信息")
+        print("5. 修改图书信息")
+        print("6. 删除图书信息")
+        print("0. 退出系统")
+        choice = input("请选择操作：")
+        if choice == "1":
+            if login():
+                # 登录成功
+                pass
+            else:
+                input("按回车键继续...")
+        elif choice == "2":
+            register()
+            input("按回车键继续...")
+        elif choice == "3":
+            add_book()
+            input("按回车键继续...")
+        elif choice == "4":
+            query_book()
+            input("按回车键继续...")
+        elif choice == "5":
+            modify_book()
+            input("按回车键继续...")
+        elif choice == "6":
+            delete_book()
+            input("按回车键继续...")
+        elif choice == "0":
+            print("感谢使用图书管理系统，再见！")
+            break
+        else:
+            print("输入有误，请重新输入！")
+            input("按回车键继续...")
