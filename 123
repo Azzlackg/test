@@ -1,130 +1,250 @@
-import hashlib
-import json
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-# 加载存储的图书信息
-with open("books.json", "r") as f:
-    books = json.load(f)
+#define MAX_BOOKS 100 // 最大图书数量
+#define MAX_ADMINS 10 // 最大管理员数量
 
-# 加载存储的管理员信息
-with open("admins.json", "r") as f:
-    admins = json.load(f)
+// 图书信息结构体
+struct Book {
+    char title[50];     // 书名
+    char author[50];    // 作者
+    char publisher[50]; // 出版社
+    int year;           // 出版年份
+    int id;             // 图书编号
+    int stock;          // 库存
+};
 
-# 定义一个函数，登录管理员账号
-def login():
-    username = input("请输入用户名：")
-    password = input("请输入密码：")
-    if username in admins and hashlib.sha256(password.encode()).hexdigest() == admins[username]:
-        print("登录成功！")
-        return True
-    else:
-        print("用户名或密码错误！")
-        return False
+// 管理员信息结构体
+struct Admin {
+    char username[50]; // 用户名
+    char password[50]; // 密码
+};
 
-# 定义一个函数，注册管理员账号
-def register():
-    username = input("请输入用户名：")
-    if username in admins:
-        print("用户名已存在！")
-        return
-    password1 = input("请输入密码：")
-    password2 = input("请再次输入密码：")
-    if password1 != password2:
-        print("两次输入的密码不一致！")
-        return
-    admins[username] = hashlib.sha256(password1.encode()).hexdigest()
-    with open("admins.json", "w") as f:
-        json.dump(admins, f)
-    print("注册成功！")
+// 全局变量
+struct Book books[MAX_BOOKS];
+int bookCount = 0;
+struct Admin admins[MAX_ADMINS];
+int adminCount = 0;
 
-# 定义一个函数，保存图书信息
-def save_books():
-    with open("books.json", "w") as f:
-        json.dump(books, f)
+// 函数声明
+void menu();
+void addBook();
+void displayBooks();
+void searchBook();
+void modifyBook();
+void deleteBook();
+void saveBooks();
+void loadBooks();
+void saveAdmins();
+void loadAdmins();
+int login();
+void registerAdmin();
 
-# 定义一个函数，添加图书信息
-def add_book():
-    print("请输入图书信息：")
-    title = input("书名：")
-    author = input("作者：")
-    publisher = input("出版社：")
-    isbn = input("ISBN：")
-    price = float(input("价格："))
-    book = {"title": title, "author": author, "publisher": publisher, "isbn": isbn, "price": price}
-    books.append(book)
-    save_books()
-    print("添加成功！")
+int main() {
+    loadBooks();  // 加载之前保存的图书信息
+    loadAdmins(); // 加载之前保存的管理员信息
 
-# 定义一个函数，查询图书信息
-def query_book():
-    print("请输入要查询的图书ISBN：")
-    isbn = input()
-    for book in books:
-        if book["isbn"] == isbn:
-            print("书名：%s，作者：%s，出版社：%s，ISBN：%s，价格：%.2f" % (book["title"], book["author"], book["publisher"], book["isbn"], book["price"]))
-            break
-    else:
-        print("未找到该图书！")
+    menu(); // 显示菜单
 
-# 定义一个函数，修改图书信息
-def delete_book():
-    print("请输入要删除的图书ISBN：")
-    isbn = input()
-    for book in books:
-        if book["isbn"] == isbn:
-            books.remove(book)
-            save_books()
-            print("删除成功！")
-            break
-            else:
-            print("未找到该图书！")
-# 定义一个函数，删除图书信息
-def delete_book():
-    print("请输入要删除的图书ISBN：")
-    isbn = input()
-    for book in books:
-        if book["isbn"] == isbn:
-            books.remove(book)
-            save_books()
-            print("删除成功！")
-            break
-            else:
-            print("未找到该图书！")
-# 程序入口
-if __name__ == "__main__":
-    while True:
-        print("欢迎使用图书管理系统！")
-        print("1. 登录管理员账号")
-        print("2. 注册管理员账号")
-        print("3. 添加图书信息")
-        print("4. 查询图书信息")
-        print("5. 修改图书信息")
-        print("6. 删除图书信息")
-        print("0. 退出系统")
-        choice = input("请选择操作：")
-        if choice == "1":
-            if login():
-                # 登录成功
-                pass
-            else:
-                input("按回车键继续...")
-        elif choice == "2":
-            register()
-            input("按回车键继续...")
-        elif choice == "3":
-            add_book()
-            input("按回车键继续...")
-        elif choice == "4":
-            query_book()
-            input("按回车键继续...")
-        elif choice == "5":
-            modify_book()
-            input("按回车键继续...")
-        elif choice == "6":
-            delete_book()
-            input("按回车键继续...")
-        elif choice == "0":
-            print("感谢使用图书管理系统，再见！")
-            break
-        else:
-            print("输入有误，请重新输入！")
-            input("按回车键继续...")
+    saveBooks();  // 保存图书信息
+    saveAdmins(); // 保存管理员信息
+    return 0;
+}
+
+// 显示菜单
+void menu() {
+    int choice;
+    do {
+        printf("\n--- 学生信息管理系统 ---\n");
+        printf("1. 添加学生信息\n");
+        printf("2. 显示所有学生信息\n");
+        printf("3. 查找学生信息\n");
+        printf("4. 修改学生信息\n");
+        printf("5. 删除学生信息\n");
+        printf("6. 退出\n");
+        printf("请选择操作：");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addBook();
+                break;
+            case 2:
+                displayBooks();
+                break;
+            case 3:
+                searchBook();
+                break;
+            case 4:
+                modifyBook();
+                break;
+            case 5:
+                deleteBook();
+                break;
+            case 6:
+                printf("谢谢使用！\n");
+                break;
+            default:
+                printf("无效的选择，请重新输入！\n");
+                break;
+        }
+    } while (choice != 6);
+}
+
+// 添加学生信息
+void addBook() {
+    if (bookCount == MAX_BOOKS) {
+        printf("学生信息数量已达上限，无法添加！\n");
+        return;
+    }
+
+    struct Book book;
+    printf("\n--- 添加学生信息 ---\n");
+    printf("请输入姓名：");
+    scanf("%s", book.title);
+    printf("请输入学号：");
+    scanf("%d", &book.id);
+    printf("请输入性别（男/女）：");
+    scanf("%s", book.author);
+    printf("请输入年龄：");
+    scanf("%d"&book.age);
+// 修改图书信息
+void modifyBook() {
+   if (bookCount == 0) {
+       printf("当前没有任何书籍！\n");
+       return;
+}
+int id;
+printf("\n--- 修改图书信息 ---\n");
+printf("请输入要修改的图书编号：");
+scanf("%d", &id);
+
+for (int i = 0; i < bookCount; i++) {
+    if (books[i].id == id) {
+        printf("请输入新的书名：");
+        scanf("%s", books[i].title);
+        printf("请输入新的作者：");
+        scanf("%s", books[i].author);
+        printf("请输入新的出版社：");
+        scanf("%s", books[i].publisher);
+        printf("请输入新的出版年份：");
+        scanf("%d", &books[i].year);
+        printf("请输入新的库存数量：");
+        scanf("%d", &books[i].stock);
+
+        printf("图书信息修改成功！\n");
+        return;
+    }
+}
+
+printf("未找到该图书编号的书籍！\n");
+}
+
+// 删除图书信息
+void deleteBook() {
+    if (bookCount == 0) {
+        printf("当前没有任何书籍！\n");
+        return;
+}
+int id;
+printf("\n--- 删除图书信息 ---\n");
+printf("请输入要删除的图书编号：");
+scanf("%d", &id);
+
+for (int i = 0; i < bookCount; i++) {
+    if (books[i].id == id) {
+        // 将数组中该位置后面的元素全部向前移动一个位置
+        for (int j = i; j < bookCount - 1; j++) {
+            books[j] = books[j + 1];
+        }
+
+        bookCount--; // 图书数量减少
+        printf("图书信息删除成功！\n");
+        return;
+    }
+}
+
+printf("未找到该图书编号的书籍！\n");
+}
+
+// 保存图书信息
+void saveBooks() {
+FILE *file = fopen("books.dat", "wb");
+if (file == NULL) {
+printf("无法打开文件！\n");
+return;
+}
+fwrite(&bookCount, sizeof(int), 1, file); // 先写入图书数量
+
+for (int i = 0; i < bookCount; i++) {
+    fwrite(&books[i], sizeof(struct Book), 1, file); // 逐个写入图书信息
+}
+
+fclose(file);
+printf("图书信息保存成功！\n");
+}
+
+// 加载存储的图书信息
+void loadBooks() {
+FILE *file = fopen("books.dat", "rb");
+if (file == NULL) {
+return;
+}
+fread(&bookCount, sizeof(int), 1, file); // 先读取图书数量
+
+for (int i = 0; i < bookCount; i++) {
+    fread(&books[i], sizeof(struct Book), 1, file); // 逐个读取图书信息
+}
+
+fclose(file);
+int main() {
+    loadBooks();     // 加载之前保存的书籍信息
+    loadAdmins();    // 加载之前保存的管理员信息
+
+    int choice;
+    do {
+        printf("\n--- 图书管理系统 ---\n");
+        printf("1. 登录管理员账号\n");
+        printf("2. 注册管理员账号\n");
+        printf("3. 查询图书信息\n");
+        printf("4. 添加图书信息\n");
+        printf("5. 修改图书信息\n");
+        printf("6. 删除图书信息\n");
+        printf("7. 退出\n");
+        printf("请选择操作：");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                login();
+                break;
+            case 2:
+                registerAdmin();
+                break;
+            case 3:
+                searchBook();
+                break;
+            case 4:
+                addBook();
+                break;
+            case 5:
+                modifyBook();
+                break;
+            case 6:
+                deleteBook();
+                break;
+            case 7:
+                printf("谢谢使用！\n");
+                break;
+            default:
+                printf("无效的选择，请重新输入！\n");
+                break;
+        }
+    } while (choice != 7);
+
+    saveBooks();    // 保存书籍信息
+    saveAdmins();   // 保存管理员信息
+
+    return 0;
+}
