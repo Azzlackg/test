@@ -66,28 +66,6 @@ def query_book():
         print("未找到该图书！")
 
 # 定义一个函数，修改图书信息
-def modify_book():
-    print("请输入要修改的图书ISBN：")
-    isbn = input()
-    for book in books:
-        if book["isbn"] == isbn:
-            print("请输入修改后的图书信息：")
-            title = input("书名（原：%s）：" % book["title"])
-            author = input("作者（原：%s）：" % book["author"])
-            publisher = input("出版社（原：%s）：" % book["publisher"])
-            isbn = input("ISBN（原：%s）：" % book["isbn"])
-            price = float(input("价格（原：%.2f）：" % book["price"]))
-            book["title"] = title
-            book["author"] = author
-            book["publisher"] = publisher
-            book["isbn"] = isbn
-            book["price"] = price
-            save_books()
-            print("修改成功！")
-            break
-            else:
-            print("未找到该图书！")
-# 定义一个函数，修改图书信息
 def delete_book():
     print("请输入要删除的图书ISBN：")
     isbn = input()
