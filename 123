@@ -77,6 +77,18 @@ def delete_book():
             break
             else:
             print("未找到该图书！")
+# 定义一个函数，删除图书信息
+def delete_book():
+    print("请输入要删除的图书ISBN：")
+    isbn = input()
+    for book in books:
+        if book["isbn"] == isbn:
+            books.remove(book)
+            save_books()
+            print("删除成功！")
+            break
+            else:
+            print("未找到该图书！")
 # 程序入口
 if __name__ == "__main__":
     while True:
